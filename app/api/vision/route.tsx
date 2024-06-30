@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { OpenAI } from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-  defaultHeaders: { "OpenAI-Beta": "assistants=v2" }, // Move the closing brace after this line
-});
+import Anthropic from "@anthropic-ai/sdk";
 console.log(process.env.OPENAI_API_KEY!);
 
 export async function POST(req: NextRequest) {
+  const anthropic = new Anthropic({
+    apiKey: process.env.OPENAI_API_KEY!,
+  });
   try {
     const { prompt } = await req.json();
 
@@ -18,22 +16,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const response = await openai.chat.completions.create({
-      messages: [
-        { role: "system", content: "You are a helpful assistant." },
-        { role: "user", content: "Who won the world series in 2020?" },
-        {
-          role: "assistant",
-          content: "The Los Angeles Dodgers won the World Series in 2020.",
-        },
-        { role: "user", content: prompt },
-      ],
-      model: "gpt-3.5-turbo",
+    const response = await anthropic.messages.create({
+      model: "claude-3-5-sonnet-20240620",
+      max_tokens: 1024,
+      messages: [{ role: "user", content: prompt }],
     });
-
-    console.log(response.choices[0]);
-
-    return NextResponse.json(response.choices[0]);
+    return NextResponse.json(response.content[0]);
   } catch (error: any) {
     console.error("Error generating text:", error);
     return NextResponse.json(

@@ -208,3 +208,37 @@ html {
 .scrollbar-thumb-rounded::-webkit-scrollbar-thumb {
   border-radius: 0.25rem;
 }
+
+.text-hover-effect {
+  position: relative;
+  display: inline-block;
+  transform: translateY(-5px);
+}
+
+.text-hover-effect::after {
+  content: "Made with ❤️";
+  position: absolute;
+  left: 5px;
+  top: 100%;
+  color: white;
+  transition: opacity 0.6s;
+  opacity: 0;
+}
+
+.text-hover-effect:hover::after {
+  opacity: 1;
+  -webkit-animation: glow 1s ease-in-out infinite alternate;
+  -moz-animation: glow 1s ease-in-out infinite alternate;
+  animation: glow 1s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #e60073,
+      0 0 40px #e60073, 0 0 50px #e60073, 0 0 60px #e60073, 0 0 70px #e60073;
+  }
+  to {
+    text-shadow: 0 0 20px #fff, 0 0 30px #ff4da6, 0 0 40px #ff4da6,
+      0 0 50px #ff4da6, 0 0 60px #ff4da6, 0 0 70px #ff4da6, 0 0 80px #ff4da6;
+  }
+}

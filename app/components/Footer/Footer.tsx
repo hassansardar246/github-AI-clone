@@ -19,16 +19,16 @@ const Footer = (props: Props) => {
         <div className="max-w-[1280px] mx-auto relative z-[2] overflow-hidden"></div>
         <div className="bg-[#161b22]">
           <div className="max-w-[1280px] mx-auto text-[12px] md:flex flex-row-reverse py-6 justify-between items-center px-4">
-            <ul className="flex items-center max-md:mb-4  "></ul>
-            <ul>
-              <li className="text-[#ffffff] made-love">Made with ❤️</li>
-            </ul>
+            <li className="text-[#ffffff] mx-auto cursor-pointer w-[100px] text-hover-effect">
+              Made with ❤️
+            </li>
+
             <ul className="flex items-center mb-4 sm:mb-0 text-[#7d8590] flex-wrap"></ul>
           </div>
         </div>
       </div>
       <div className="relative">
-        <div className="fixed bottom-0 z-20 right-0 right-5 flex items-center justify-center gap-3">
+        <div className="fixed bottom-0 z-20 right-5 flex items-center justify-center ">
           <Link
             target="_blank"
             href="https://github.com/OpenAIEngineer"
@@ -40,10 +40,9 @@ const Footer = (props: Props) => {
               height={50}
               width={50}
               className="rounded-full"
-              src="/aigif.gif"
+              src="/github-logo.png"
               alt=""
             />
-            <span>Github</span>
           </Link>
           <Link
             target="_blank"
@@ -59,7 +58,6 @@ const Footer = (props: Props) => {
               src="/aigif.gif"
               alt=""
             />
-            <span>Google Cloud</span>
           </Link>
         </div>
       </div>
