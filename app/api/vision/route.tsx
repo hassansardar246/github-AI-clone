@@ -7,9 +7,9 @@ export async function POST(req: NextRequest) {
     apiKey: process.env.OPENAI_API_KEY!,
   });
   try {
-    const { prompt } = await req.json();
+    const { prompt, custom_promt } = await req.json();
 
-    if (!prompt) {
+    if (!prompt || !custom_promt) {
       return NextResponse.json(
         { message: "Prompt is required" },
         { status: 400 }
@@ -19,6 +19,7 @@ export async function POST(req: NextRequest) {
     const response = await anthropic.messages.create({
       model: "claude-3-5-sonnet-20240620",
       max_tokens: 1024,
+      system: custom_promt,
       messages: [{ role: "user", content: prompt }],
     });
     return NextResponse.json(response.content[0]);
