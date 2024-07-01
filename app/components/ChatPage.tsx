@@ -104,7 +104,7 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="flex flex-col max-w-[50%] bg-[#2F2F2F] py-5 m-auto min-h-[600px]">
+    <div className="flex flex-col w-full px-2 lg:px-0 lg:w-[50%] bg-dark py-5 m-auto min-h-[600px]">
       <div className="flex-1 p-4 overflow-y-auto">
         {messages.map((message, index) => (
           <div
@@ -118,18 +118,11 @@ const ChatPage = () => {
                   : "text-white flex items-start gap-3 rounded-bl-none"
               }`}
             >
-              {message.role === "assistant" && (
-                <div className="text-white w-[30px]">
-                  <img
-                    className="w-full rounded-full h-auto block"
-                    src="/aigif.gif"
-                    alt=""
-                  />
-                </div>
-              )}
               <span
                 className={` ${
-                  message.role === "user" ? "bg-black rounded-lg p-2" : "w-full"
+                  message.role === "user"
+                    ? "bg-[#2F2F2F] rounded-lg p-2"
+                    : "w-full"
                 }`}
               >
                 {message.role === "assistant" && loading && (
@@ -144,11 +137,11 @@ const ChatPage = () => {
       </div>
       <form
         onSubmit={handleSubmit}
-        className="flex items-center mx-auto lg:w-[90%] relative justify-between"
+        className="flex items-center mx-auto w-full lg:w-[90%] relative justify-between"
       >
         <input
           type="text"
-          className="w-full px-5 py-4 text-white bg-black  rounded-full outline-none"
+          className="w-full px-5 py-4 text-white bg-[#2F2F2F]  rounded-full outline-none"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Type your message..."

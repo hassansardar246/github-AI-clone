@@ -18,12 +18,10 @@ const Footer = (props: Props) => {
       <div className="footer relative pt-14 break-words ">
         <div className="max-w-[1280px] mx-auto relative z-[2] overflow-hidden"></div>
         <div className="bg-[#161b22]">
-          <div className="max-w-[1280px] mx-auto text-[12px] md:flex flex-row-reverse py-6 justify-between items-center px-4">
-            <li className="text-[#ffffff] mx-auto cursor-pointer w-[100px] text-hover-effect">
+          <div className="max-w-[1280px] mx-auto text-center text-[12px] py-6  px-4">
+            <span className="text-[#ffffff] mx-auto cursor-pointer w-[100px] text-hover-effect">
               Made with ❤️
-            </li>
-
-            <ul className="flex items-center mb-4 sm:mb-0 text-[#7d8590] flex-wrap"></ul>
+            </span>
           </div>
         </div>
       </div>
@@ -44,7 +42,7 @@ const Footer = (props: Props) => {
               alt=""
             />
           </Link>
-          <Link
+          {/* <Link
             target="_blank"
             href="https://developers.google.com/profile/u/Luis-Ai-Engineer"
             className="z-20 text-white flex items-center gap-2 flex-col shrink-0 grow-0 justify-around 
@@ -58,7 +56,7 @@ const Footer = (props: Props) => {
               src="/aigif.gif"
               alt=""
             />
-          </Link>
+          </Link> */}
         </div>
       </div>
     </div>
