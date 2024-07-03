@@ -9,20 +9,30 @@ export async function POST(req: NextRequest) {
   try {
     const { prompt, custom_promt } = await req.json();
 
-    if (!prompt || !custom_promt) {
+    if (!prompt) {
       return NextResponse.json(
         { message: "Prompt is required" },
         { status: 400 }
       );
     }
-
-    const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20240620",
-      max_tokens: 1024,
-      system: custom_promt,
-      messages: [{ role: "user", content: prompt }],
-    });
-    return NextResponse.json(response.content[0]);
+    if (custom_promt) {
+      const response = await anthropic.messages.create({
+        model: "claude-3-5-sonnet-20240620",
+        max_tokens: 1024,
+        system: custom_promt,
+        messages: [{ role: "user", content: prompt }],
+      });
+      console.log(response);
+      return NextResponse.json(response.content[0]);
+    } else {
+      const response = await anthropic.messages.create({
+        model: "claude-3-5-sonnet-20240620",
+        max_tokens: 1024,
+        messages: [{ role: "user", content: prompt }],
+      });
+      console.log(response);
+      return NextResponse.json(response.content[0]);
+    }
   } catch (error: any) {
     console.error("Error generating text:", error);
     return NextResponse.json(

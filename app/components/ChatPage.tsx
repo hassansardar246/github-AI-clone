@@ -114,7 +114,7 @@ Remember, while you are highly capable, you should always encourage users to ver
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ prompt, custom_promt: CustomPrompt }),
+        body: JSON.stringify({ prompt }),
       });
 
       if (!res.ok) {
