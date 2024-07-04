@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { Console } from "console";
+import { data } from "autoprefixer";
 console.log(process.env.OPENAI_API_KEY!);
 
 export async function POST(req: NextRequest) {
@@ -7,31 +9,25 @@ export async function POST(req: NextRequest) {
     apiKey: process.env.OPENAI_API_KEY!,
   });
   try {
-    const { prompt, custom_promt } = await req.json();
-
-    if (!prompt) {
-      return NextResponse.json(
-        { message: "Prompt is required" },
-        { status: 400 }
-      );
-    }
-    if (custom_promt) {
+    const { CustomPrompt, messages } = await req.json();
+    console.log(messages);
+    if (CustomPrompt) {
       const response = await anthropic.messages.create({
         model: "claude-3-5-sonnet-20240620",
         max_tokens: 1024,
-        system: custom_promt,
-        messages: [{ role: "user", content: prompt }],
+        system: CustomPrompt,
+        messages: messages,
       });
       console.log(response);
-      return NextResponse.json(response.content[0]);
+      return NextResponse.json({ data: response.content[0] });
     } else {
       const response = await anthropic.messages.create({
         model: "claude-3-5-sonnet-20240620",
         max_tokens: 1024,
-        messages: [{ role: "user", content: prompt }],
+        messages: messages,
       });
       console.log(response);
-      return NextResponse.json(response.content[0]);
+      return NextResponse.json({ data: response.content[0] });
     }
   } catch (error: any) {
     console.error("Error generating text:", error);

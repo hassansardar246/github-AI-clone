@@ -1,23 +1,18 @@
 import React, { useState, useRef, useEffect } from "react";
+import useMessagesStore from "./store";
 
 const ChatPage = () => {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [input, setInput] = useState("");
   const [inputAssistant, setInputAssistant] = useState("");
-  const [messages, setMessages] = useState<{ role: string; content: string }[]>(
-    []
-  );
+  // const [messages, setMessages] = useState<{ role: string; content: string }[]>(
+  //   []
+  // );
+  const messages = useMessagesStore((state: any) => state.messages);
+  const addMessage = useMessagesStore((state: any) => state.addMessage);
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // useEffect(() => {
-  //   scrollToBottom();
-  // }, [messages]);
-
-  // const scrollToBottom = () => {
-  //   messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  // };
   const CustomPrompt = `You are an advanced AI assistant based on Claude 3.5 Sonnet, created by Anthropic and further customized by Luis Santos, a Machine Learning Engineer. Your role is to serve as an expert web assistant, specializing in artificial intelligence with knowledge updated to 2024.
   when someon asks you about luis santos you have to provide info in the double quote but dont include quotes "Luis Santos, a Machine Learning Engineer. Your role is to serve as an expert web assistant, specializing in artificial intelligence with knowledge updated to 2024"
 
@@ -57,37 +52,38 @@ Remember, while you are highly capable, you should always encourage users to ver
         const bottom = messagesEndRef.current.getBoundingClientRect().bottom;
         const isChatInView = bottom <= window.innerHeight;
         if (isChatInView && inputAssistant == "") {
-          getInitialResponse();
+          // getInitialResponse();
           initialResponseFetched = true;
         }
       }
     };
 
-    const getInitialResponse = async () => {
-      try {
-        const res = await fetch("/api/vision", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            prompt: "Hello user interactivity detected",
-            custom_promt: CustomPrompt,
-          }),
-        });
-        if (!res.ok) {
-          throw new Error("Failed to fetch response");
-        }
-        const data = await res.json();
-        setInputAssistant(data.text);
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { role: "assistant", content: data.text },
-        ]);
-      } catch (error) {
-        console.error("Error fetching initial response:", error);
-      }
-    };
+    // const getInitialResponse = async () => {
+    //   try {
+    //     const res = await fetch("/api/vision", {
+    //       method: "POST",
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //       },
+    //       body: JSON.stringify({
+    //         messages,
+    //         custom_promt: CustomPrompt,
+    //       }),
+    //     });
+    //     if (!res.ok) {
+    //       throw new Error("Failed to fetch response");
+    //     }
+    //     const data = await res.json();
+    //     console.log(data);
+    //     setInputAssistant(data?.data?.text);
+    //     setMessages((prevMessages) => [
+    //       ...prevMessages,
+    //       { role: "assistant", content: data?.data?.text },
+    //     ]);
+    //   } catch (error) {
+    //     console.error("Error fetching initial response:", error);
+    //   }
+    // };
     window.addEventListener("scroll", handleScroll);
     return () => {
       window.removeEventListener("scroll", handleScroll);
@@ -100,21 +96,27 @@ Remember, while you are highly capable, you should always encourage users to ver
       alert("Prompt cannot be empty");
       return;
     }
-    setPrompt("");
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { role: "user", content: prompt },
-    ]);
     setInput(prompt);
-    setError(null);
+    addMessage({ role: "user", content: prompt }, (updatedMessages: any) => {
+      console.log({ messages: updatedMessages, CustomPrompt: prompt });
+      fetchResponse(updatedMessages);
+    });
+
     setLoading(true);
+    setInput("");
+    setPrompt("");
+  };
+  const fetchResponse = async (updatedMessages: any) => {
     try {
       const res = await fetch("/api/vision", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({
+          messages: updatedMessages,
+          CustomPrompt,
+        }),
       });
 
       if (!res.ok) {
@@ -122,23 +124,20 @@ Remember, while you are highly capable, you should always encourage users to ver
       }
 
       const data = await res.json();
+      console.log(data);
 
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { role: "assistant", content: data?.text },
-      ]);
+      addMessage({ role: "assistant", content: data?.data?.text });
     } catch (error: any) {
       setError(error.message);
     } finally {
       setLoading(false);
-      setPrompt("");
     }
   };
 
   return (
     <div className="flex flex-col w-full px-2 lg:px-0 lg:w-[50%] bg-dark py-5 m-auto min-h-[600px]">
       <div className="flex-1 p-4 overflow-y-auto">
-        {messages.map((message, index) => (
+        {messages.map((message: any, index: any) => (
           <div
             key={index}
             className={`text-${message.role === "user" ? "right" : "left"}`}
