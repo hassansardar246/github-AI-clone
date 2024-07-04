@@ -10,6 +10,9 @@ const ChatPage = () => {
   // );
   const messages = useMessagesStore((state: any) => state.messages);
   const addMessage = useMessagesStore((state: any) => state.addMessage);
+  const updateAssistantMessage = useMessagesStore(
+    (state: any) => state.updateAssistantMessage
+  );
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -122,15 +125,68 @@ Remember, while you are highly capable, you should always encourage users to ver
       if (!res.ok) {
         throw new Error("Failed to fetch response");
       }
+      const reader = res?.body?.getReader();
+      const decoder = new TextDecoder();
+      let done = false;
 
-      const data = await res.json();
-      console.log(data);
+      while (!done) {
+        const { value, done: readerDone }: any = await reader?.read();
+        done = readerDone;
+        const chunk = decoder.decode(value, { stream: true });
 
-      addMessage({ role: "assistant", content: data?.data?.text });
+        try {
+          console.log(chunk);
+          const jsonChunk = JSON.parse(chunk);
+          if (jsonChunk.data && jsonChunk.data.type === "text") {
+            updateAssistantMessage(jsonChunk.data.text);
+          }
+        } catch (e) {
+          console.error("Failed to parse chunk", e);
+        }
+      }
     } catch (error: any) {
       setError(error.message);
     } finally {
       setLoading(false);
+    }
+  };
+  const renderMessage = (message: any, index: number) => {
+    if (message.role === "assistant") {
+      const parts = message.content.split(/(```[\s\S]*?```)/);
+
+      return parts.map((part: any, i: number) => {
+        if (part.startsWith("```")) {
+          return (
+            <pre key={i} className="code-block">
+              <code>{part.replace(/```/g, "")}</code>
+            </pre>
+          );
+        }
+
+        const lines = part
+          .split("\n")
+          .filter((line: any) => line.trim() !== "");
+
+        return lines.map((line: any, j: number) => {
+          if (/^\d+\./.test(line.trim())) {
+            return (
+              <p key={`${i}-${j}`} className="numbered-point">
+                {line}
+              </p>
+            );
+          } else if (line.startsWith("- ") || line.startsWith("* ")) {
+            return (
+              <p key={`${i}-${j}`} className="bullet-point">
+                {line}
+              </p>
+            );
+          } else {
+            return <span key={`${i}-${j}`}>{line} </span>;
+          }
+        });
+      });
+    } else {
+      return <span>{message.content}</span>;
     }
   };
 
@@ -159,7 +215,7 @@ Remember, while you are highly capable, you should always encourage users to ver
                 {message.role === "assistant" && loading && (
                   <p className="text-center py-2">Loading...</p>
                 )}
-                {message.content}
+                {renderMessage(message, index)}
               </span>
             </div>
           </div>

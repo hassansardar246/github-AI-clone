@@ -242,3 +242,23 @@ html {
       0 0 50px #ff4da6, 0 0 60px #ff4da6, 0 0 70px #ff4da6, 0 0 80px #ff4da6;
   }
 }
+
+.numbered-point {
+  margin-left: 20px;
+  color: rgb(255, 255, 255);
+  padding-block: 10px;
+}
+
+.bullet-point {
+  margin-left: 20px;
+  font-weight: bold;
+  color: rgb(255, 255, 255);
+}
+
+.code-block {
+  margin-block: 10px;
+  background-color: #f5f5f5;
+  padding: 10px;
+  border-radius: 5px;
+  color: #0d1117;
+}
