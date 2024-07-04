@@ -55,38 +55,55 @@ Remember, while you are highly capable, you should always encourage users to ver
         const bottom = messagesEndRef.current.getBoundingClientRect().bottom;
         const isChatInView = bottom <= window.innerHeight;
         if (isChatInView && inputAssistant == "") {
-          // getInitialResponse();
+          addMessage(
+            { role: "user", content: "hello" },
+            (updatedMessages: any) => {
+              getInitialResponse(updatedMessages);
+            }
+          );
           initialResponseFetched = true;
         }
       }
     };
 
-    // const getInitialResponse = async () => {
-    //   try {
-    //     const res = await fetch("/api/vision", {
-    //       method: "POST",
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //       body: JSON.stringify({
-    //         messages,
-    //         custom_promt: CustomPrompt,
-    //       }),
-    //     });
-    //     if (!res.ok) {
-    //       throw new Error("Failed to fetch response");
-    //     }
-    //     const data = await res.json();
-    //     console.log(data);
-    //     setInputAssistant(data?.data?.text);
-    //     setMessages((prevMessages) => [
-    //       ...prevMessages,
-    //       { role: "assistant", content: data?.data?.text },
-    //     ]);
-    //   } catch (error) {
-    //     console.error("Error fetching initial response:", error);
-    //   }
-    // };
+    const getInitialResponse = async (updatedMessages: any) => {
+      try {
+        const res = await fetch("/api/vision", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            messages: updatedMessages,
+            CustomPrompt,
+          }),
+        });
+        if (!res.ok) {
+          throw new Error("Failed to fetch response");
+        }
+        const reader = res?.body?.getReader();
+        const decoder = new TextDecoder();
+        let done = false;
+
+        while (!done) {
+          const { value, done: readerDone }: any = await reader?.read();
+          done = readerDone;
+          const chunk = decoder.decode(value, { stream: true });
+
+          try {
+            console.log(chunk);
+            const jsonChunk = JSON.parse(chunk);
+            if (jsonChunk.data && jsonChunk.data.type === "text") {
+              updateAssistantMessage(jsonChunk.data.text);
+            }
+          } catch (e) {
+            console.error("Failed to parse chunk", e);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching initial response:", error);
+      }
+    };
     window.addEventListener("scroll", handleScroll);
     return () => {
       window.removeEventListener("scroll", handleScroll);
@@ -101,7 +118,6 @@ Remember, while you are highly capable, you should always encourage users to ver
     }
     setInput(prompt);
     addMessage({ role: "user", content: prompt }, (updatedMessages: any) => {
-      console.log({ messages: updatedMessages, CustomPrompt: prompt });
       fetchResponse(updatedMessages);
     });
 
@@ -207,15 +223,12 @@ Remember, while you are highly capable, you should always encourage users to ver
             >
               <span
                 className={` ${
-                  message.role === "user"
+                  index !== 0 && message.role === "user"
                     ? "bg-[#2F2F2F] rounded-lg p-2"
                     : "w-full"
                 }`}
               >
-                {message.role === "assistant" && loading && (
-                  <p className="text-center py-2">Loading...</p>
-                )}
-                {renderMessage(message, index)}
+                {index !== 0 && renderMessage(message, index)}
               </span>
             </div>
           </div>
